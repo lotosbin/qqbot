@@ -3,7 +3,9 @@
   "version": "2.1.0",
   "description": "SmartQQ robot powered by node.js",
   "main": "main.js",
-  "scripts": {},
+  "scripts": {
+    "postinstall": "cp -n config.sample.yaml config.yaml"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/floatinghotpot/qqbot.git"

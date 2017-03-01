@@ -4,6 +4,7 @@
 account:  2769546520
 password: "123"
 
+
 # server to view verification code, not required for mac
 port: 3100
 host: localhost
