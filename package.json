@@ -37,6 +37,8 @@
     "js-yaml": ">= 3.0.0",
     "log": ">= 1.4.0",
     "minimist": "^1.2.0",
+    "request": "^2.81.0",
+    "tuling": "0.0.3",
     "underscore": "^1.8.3"
   },
   "engines": {

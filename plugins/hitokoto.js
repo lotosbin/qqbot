@@ -8,8 +8,9 @@ http://hitokoto.us/
 
 (function() {
   module.exports = function(content, send, robot, message) {
+    const request = require('request');
     if (content.match(/^comic$/i)) {
-      return robot.request.get({
+      return request.get({
         url: "http://api.hitokoto.us/rand",
         json: true
       }, function(e, r, data) {
