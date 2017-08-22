@@ -310,6 +310,7 @@
         if (acc = info.account) {
           return callback(null, acc);
         } else {
+          if (!info.callbacks) info.callbacks = [];
           return info.callbacks.push(callback);
         }
       } else {

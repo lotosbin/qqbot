@@ -97,14 +97,22 @@
   get_friend_uin2 = function(tuin, type, auth_opts, callback) {
     var opt, params, url;
     opt = auth_opts;
-    url = "http://s.web2.qq.com/api/get_friend_uin2";
+
     params = {
       tuin: tuin,
       type: type,
       vfwebqq: opt.vfwebqq,
       t: new Date().getTime()
     };
+    if (type === 4) {
+      url = "http://s.web2.qq.com/api/get_group_info_ext2";
+      params.gcode = tuin
+    }
+    else {
+      url = "http://s.web2.qq.com/api/get_friend_info2";
+    }
     return client.get(url, params, function(ret, e) {
+      log.info(JSON.stringify(ret))
       return callback(ret, e);
     });
   };
