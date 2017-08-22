@@ -116,7 +116,7 @@
           }
         };
       })(this));
-      server.listen(port);
+      server.listen(port, 'localhost');
       log.info('api server started at port', port);
       return server;
     };
