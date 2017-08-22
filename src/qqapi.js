@@ -104,7 +104,7 @@
       vfwebqq: opt.vfwebqq,
       t: new Date().getTime()
     };
-    if (type === 4) {
+    if (parseInt(type) === 4) {
       url = "http://s.web2.qq.com/api/get_group_info_ext2";
       params.gcode = tuin
     }

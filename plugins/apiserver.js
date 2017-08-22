@@ -87,7 +87,9 @@
     }
 
     APIServer.prototype.start = function() {
-      return this.http_server = this.create_server(this.port);
+      this.http_server = this.create_server(this.port);
+      log.info("api server started")
+      return this.http_server;
     };
 
     APIServer.prototype.stop = function() {
@@ -95,7 +97,7 @@
         this.http_server.close();
       }
       this.http_server = null;
-      return log.info("aip server stoped");
+      return log.info("api server stoped");
     };
 
     APIServer.prototype.create_server = function(port) {

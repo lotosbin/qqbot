@@ -10,10 +10,10 @@ var config = require('./config');
 
 var qqbot_host = 'localhost';
 var qqbot_port = config.api_port;
-
+var qqbot_api_token = config.api_token;
 var qq_cli = {
     api_get: function(path, callback) {
-        var url = "http://" + qqbot_host + ":" + config.api_port + path;
+      var url = "http://" + qqbot_host + ":" + config.api_port + path + '?token=' + qqbot_api_token;
         return http.get(url, function(resp) {
             var res = resp;
             var body = '';
@@ -29,6 +29,8 @@ var qq_cli = {
     },
 
     api_post: function(path, form, callback) {
+      form = form || {};
+      form.token = qqbot_api_token;
         var postData = querystring.stringify(form);
         var options = {
             hostname: qqbot_host,
