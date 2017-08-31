@@ -1,5 +1,5 @@
 #https://hub.docker.com/_/node/
-FROM node
+FROM node:alpine
 WORKDIR /app
 COPY . /app
 RUN yarn
