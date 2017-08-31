@@ -2,6 +2,6 @@
 FROM node
 WORKDIR /app
 COPY . /app
-RUN npm install
+RUN yarn
 ENTRYPOINT node main.js
 EXPOSE 3100 3200

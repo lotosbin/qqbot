@@ -29,7 +29,7 @@
   3. 重新加载插件 /reload
  */
 
-(function() {
+(function () {
   var APIServer, URL, api_server, http, jsons, log, processPost, querystring;
 
   URL = require('url');
@@ -42,13 +42,13 @@
 
   querystring = require('querystring');
 
-  processPost = function(request, response, callback) {
+  processPost = function (request, response, callback) {
     var queryData;
     queryData = "";
     if (typeof callback !== 'function') {
       return null;
     }
-    request.on('data', function(data) {
+    request.on('data', function (data) {
       queryData += data;
       if (queryData.length > 1e6) {
         queryData = "";
@@ -58,41 +58,44 @@
         return request.connection.destroy();
       }
     });
-    request.on('end', function() {
+    request.on('end', function () {
       var data;
-      if(request.headers) {
+      if (request.headers) {
         var contentType = request.headers['content-type'];
-        if(contentType) {
-          if(contentType.indexOf('json') > 0) {
+        if (contentType) {
+          if (contentType.indexOf('json') > 0) {
             return callback(JSON.parse(queryData));
-          } else if(contentType.indexOf('form-urlencoded') > 0) {
+          } else if (contentType.indexOf('form-urlencoded') > 0) {
             return callback(querystring.parse(queryData));
           }
         }
       }
       return callback(queryData);
     });
-    return request.on('error', function(error) {
+    return request.on('error', function (error) {
       return callback(null, error);
     });
   };
 
-  APIServer = (function() {
+  APIServer = (function () {
     function APIServer(qqbot1) {
       var config, ref;
       this.qqbot = qqbot1;
       config = this.qqbot.config;
       this.http_server = null;
-      ref = [config.api_port, config.api_token], this.port = ref[0], this.token = ref[1];
+      ref = [config.api_port, config.api_token, config.api_hostname];
+      this.port = ref[0];
+      this.token = ref[1];
+      this.hostname = ref[2];
     }
 
-    APIServer.prototype.start = function() {
-      this.http_server = this.create_server(this.port);
-      log.info("api server started")
+    APIServer.prototype.start = function () {
+      this.http_server = this.create_server(this.port, this.hostname);
+      log.info("api server started");
       return this.http_server;
     };
 
-    APIServer.prototype.stop = function() {
+    APIServer.prototype.stop = function () {
       if (this.http_server) {
         this.http_server.close();
       }
@@ -100,16 +103,16 @@
       return log.info("api server stoped");
     };
 
-    APIServer.prototype.create_server = function(port) {
+    APIServer.prototype.create_server = function (port, hostname) {
       var server;
-      server = http.createServer((function(_this) {
-        return function(req, res) {
+      server = http.createServer((function (_this) {
+        return function (req, res) {
           var path, query, url;
           log.debug('[api]', req.url);
           url = URL.parse(req.url);
           path = url.pathname;
           if (req.method === 'POST') {
-            return processPost(req, res, function(body) {
+            return processPost(req, res, function (body) {
               return _this.handle_request(req, res, path, body);
             });
           } else if (req.method === 'GET') {
@@ -118,14 +121,15 @@
           }
         };
       })(this));
-      server.listen(port, 'localhost');
-      log.info('api server started at port', port);
+      var hostname = this.hostname || 'localhost';
+      server.listen(port, hostname);
+      log.info('api server started at port %d hostname %s', port, hostname);
       return server;
     };
 
-    APIServer.prototype.handle_request = function(req, res, path, params) {
+    APIServer.prototype.handle_request = function (req, res, path, params) {
       var func;
-      res.endjson = function(dict) {
+      res.endjson = function (dict) {
         var key, ret_dict, value;
         if (dict == null) {
           dict = {};
@@ -148,7 +152,7 @@
         });
         return;
       }
-      return func = (function() {
+      return func = (function () {
         switch (path) {
           case '/stdin':
             return this.on_stdin(req, res, params);
@@ -175,7 +179,7 @@
       }).call(this);
     };
 
-    APIServer.prototype.on_stdin = function(req, res, params) {
+    APIServer.prototype.on_stdin = function (req, res, params) {
       var value;
       value = params.value.trim();
       log.info('stdin value', value);
@@ -183,68 +187,68 @@
       return res.endjson();
     };
 
-    APIServer.prototype.on_reload_plugin = function(req, res, params) {
+    APIServer.prototype.on_reload_plugin = function (req, res, params) {
       return res.endjson({
         err: 1,
         msg: "method unimplemented"
       });
     };
 
-    APIServer.prototype.on_quit = function(req, res, params) {
-      if( req.headers.host.indexOf('localhost') >= 0 ) {
-          res.endjson({
-            err: 0,
-            msg: "ok, qqbot shutdown now."
-          });
+    APIServer.prototype.on_quit = function (req, res, params) {
+      if (req.headers.host.indexOf('localhost') >= 0) {
+        res.endjson({
+          err: 0,
+          msg: "ok, qqbot shutdown now."
+        });
 
-          console.log("qqbot gracefully shutdown now.\n");
-          process.exit(0);
+        console.log("qqbot gracefully shutdown now.\n");
+        process.exit(0);
 
       } else {
-          res.endjson({
-            err: 403,
-            msg: "only accept quit command from localhost."
-          });
+        res.endjson({
+          err: 403,
+          msg: "only accept quit command from localhost."
+        });
       }
     };
 
-    APIServer.prototype.on_listbuddy = function(req, res, params) {
-        var bot = this.qqbot;
-        return bot.update_buddy_list(function(ret, e){
-            return res.endjson( bot.buddy_info );
-        });
+    APIServer.prototype.on_listbuddy = function (req, res, params) {
+      var bot = this.qqbot;
+      return bot.update_buddy_list(function (ret, e) {
+        return res.endjson(bot.buddy_info);
+      });
     };
 
-    APIServer.prototype.on_listgroup = function(req, res, params) {
-        var bot = this.qqbot;
-        return bot.update_group_list(function(ret, e){
-            return res.endjson( bot.group_info );
-        });
+    APIServer.prototype.on_listgroup = function (req, res, params) {
+      var bot = this.qqbot;
+      return bot.update_group_list(function (ret, e) {
+        return res.endjson(bot.group_info);
+      });
     };
 
-    APIServer.prototype.on_relogin = function(req, res, params) {
-        var bot = this.qqbot;
-        return bot.relogin(function(ret, e){
-            return res.endjson( bot.ret );
-        });
+    APIServer.prototype.on_relogin = function (req, res, params) {
+      var bot = this.qqbot;
+      return bot.relogin(function (ret, e) {
+        return res.endjson(bot.ret);
+      });
     };
 
-    APIServer.prototype.on_listdiscuss = function(req, res, params) {
-        var bot = this.qqbot;
-        return bot.update_dgroup_list(function(ret, e){
-            return res.endjson( bot.dgroup_info );
-        });
+    APIServer.prototype.on_listdiscuss = function (req, res, params) {
+      var bot = this.qqbot;
+      return bot.update_dgroup_list(function (ret, e) {
+        return res.endjson(bot.dgroup_info);
+      });
     };
 
-    APIServer.prototype.on_sendmsg = function(req, res, params) {
+    APIServer.prototype.on_sendmsg = function (req, res, params) {
       var self = this;
       var discuss_group, group, msg, user;
       log.info("sending " + params.type + " " + params.to + " : " + params.msg);
       if (params.type === 'buddy') {
         if (parseInt(params.to) > 0) {
-          return self.qqbot.get_user_uin(params.to, function(err, uin){
-            return self.qqbot.send_message(uin, params.msg, function(ret, e) {
-              var resp_ret = { result: ret };
+          return self.qqbot.get_user_uin(params.to, function (err, uin) {
+            return self.qqbot.send_message(uin, params.msg, function (ret, e) {
+              var resp_ret = {result: ret};
               if (e) {
                 resp_ret.err = 1;
                 resp_ret.msg = "" + e;
@@ -253,9 +257,9 @@
             });
           });
         } else {
-          user = this.qqbot.get_user_ex({ nick: params.to });
-          return this.qqbot.send_message(user, params.msg, function(ret, e) {
-            var resp_ret = { result: ret };
+          user = this.qqbot.get_user_ex({nick: params.to});
+          return this.qqbot.send_message(user, params.msg, function (ret, e) {
+            var resp_ret = {result: ret};
             if (e) {
               resp_ret.err = 1;
               resp_ret.msg = "" + e;
@@ -265,9 +269,9 @@
         }
       } else if (params.type === 'group') {
         if (parseInt(params.to) > 0) {
-          return this.qqbot.get_group_gid(params.to, function(err, gid){
-            return self.qqbot.send_message_to_group(gid, params.msg, function(ret, e) {
-              var resp_ret = { result: ret };
+          return this.qqbot.get_group_gid(params.to, function (err, gid) {
+            return self.qqbot.send_message_to_group(gid, params.msg, function (ret, e) {
+              var resp_ret = {result: ret};
               if (e) {
                 resp_ret.err = 1;
                 resp_ret.msg = "" + e;
@@ -276,9 +280,9 @@
             });
           });
         } else {
-          group = this.qqbot.get_group({ name: params.to });
-          return this.qqbot.send_message_to_group(group, params.msg, function(ret, e) {
-            var resp_ret = { result: ret };
+          group = this.qqbot.get_group({name: params.to});
+          return this.qqbot.send_message_to_group(group, params.msg, function (ret, e) {
+            var resp_ret = {result: ret};
             if (e) {
               resp_ret.err = 1;
               resp_ret.msg = "" + e;
@@ -297,7 +301,7 @@
           });
           return;
         }
-        return this.qqbot.send_message_to_discuss(discuss_group.did, params.msg, function(ret, e) {
+        return this.qqbot.send_message_to_discuss(discuss_group.did, params.msg, function (ret, e) {
           var resp_ret;
           resp_ret = {
             result: ret
@@ -324,12 +328,12 @@
 
   api_server = null;
 
-  exports.init = function(qqbot) {
+  exports.init = function (qqbot) {
     api_server = new APIServer(qqbot);
     return api_server.start();
   };
 
-  exports.stop = function(qqbot) {
+  exports.stop = function (qqbot) {
     return api_server.stop();
   };
 
