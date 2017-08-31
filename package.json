@@ -4,7 +4,7 @@
   "description": "SmartQQ robot powered by node.js",
   "main": "main.js",
   "scripts": {
-    "postinstall": "cp -n config.sample.yaml config.yaml"
+    "init": "cp -n config.sample.yaml config.yaml"
   },
   "repository": {
     "type": "git",
