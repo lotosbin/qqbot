@@ -6,3 +6,5 @@ services:
       - "3100:3100"
       - "3200:3200"
     restart: always
+    volumes:
+      - ./config.yaml:/app/config.yaml
