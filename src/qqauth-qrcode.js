@@ -137,7 +137,7 @@ function getUserHome() {
       host: 's.web2.qq.com',
       path: '/api/getvfwebqq?ptwebqq=' + ptwebqq + '&clientid=' + client_id + '&psessionid=&t=' + Math.random(),
       headers: {
-        'Cookie': client.get_cookies_string(),
+        'Cookie': client.get_cookies_arry(),
         'Origin': 'http://s.web2.qq.com',
         'Referer': 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
       }
@@ -181,7 +181,7 @@ function getUserHome() {
       host: 'd1.web2.qq.com',
       path: '/channel/get_online_buddies2?vfwebqq=' + vfwebqq + '&clientid=' + client_id + '&psessionid=' + psessionid + '&t=' + Math.random(),
       headers: {
-        'Cookie': client.get_cookies_string(),
+        'Cookie': client.get_cookies_arry(),
         'Origin': 'http://d1.web2.qq.com',
         'Referer': 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',
       }

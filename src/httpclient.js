@@ -25,6 +25,14 @@
       }
       return cks.join(' ');
   };
+    var get_cookies_arry = function() {
+      var cookie_arry = [];
+      all_cookies.forEach(function(ck){
+        var v = ck.split(';')[0];
+        cookie_arry.push(v);
+      });
+      return cookie_arry.join(';');
+  };
 
   var update_cookies = function(cks) {
       if (cks) {
@@ -82,7 +90,7 @@
       if(typeof options.headers !== 'object') options.headers = {};
       options.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
       options.headers['Content-Length'] = Buffer.byteLength(postData);
-      options.headers['Cookie'] = get_cookies_string();
+      options.headers['Cookie'] = get_cookies_arry();
       options.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0';
       if(process.env.DEBUG) {
         console.log(options.headers);
@@ -127,7 +135,7 @@
       append = aurl.query ? '&' : '?';
       options.path += append + query;
     }
-    options.headers['Cookie'] = get_cookies_string();
+    options.headers['Cookie'] = get_cookies_arry();
     options.headers['Referer'] = 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2';
     //options.headers['Referer'] = 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1';
     options.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36';
@@ -194,6 +202,7 @@
     get_cookies: get_cookies,
     update_cookies: update_cookies,
     get_cookies_string: get_cookies_string,
+    get_cookies_arry:get_cookies_arry,
     request: http_request,
     get: http_get,
     post: http_post,
